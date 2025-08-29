@@ -25,16 +25,39 @@ export default function LoginPage() {
         </div>
         {/* Form Section */}
         <div className="flex flex-col justify-center items-center w-1/2 bg-white/10 p-8 gap-6">
-          <form className="flex flex-col gap-4 w-full">
+          <form className="flex flex-col gap-4 w-full" onSubmit={async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const userid = formData.get("userid");
+            const password = formData.get("password");
+            const res = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userid, password })
+            });
+            if (res.redirected) {
+              window.location.href = res.url;
+            } else {
+              const contentType = res.headers.get("content-type") || "";
+              if (contentType.includes("application/json")) {
+                const data = await res.json();
+                alert(data.error || "Login failed");
+              } else {
+                alert("Login failed");
+              }
+            }
+          }}>
             <input
-              type="email"
-              placeholder="Email"
+              type="text"
+              name="userid"
+              placeholder="User ID"
               className="px-4 py-3 rounded-lg bg-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-200"
               required
-              aria-label="Email"
+              aria-label="User ID"
             />
             <input
               type="password"
+              name="password"
               placeholder="Password"
               className="px-4 py-3 rounded-lg bg-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-200"
               required
